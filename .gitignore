@@ -1,0 +1,5 @@
+.env
+data/movies_raw.csv
+__pycache__/
+.ipynb_checkpoints/
+*.pyc

@@ -1,1 +1,1 @@
-# box-office-bayesian
+# box office baysian
