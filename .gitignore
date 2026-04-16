@@ -1,5 +1,10 @@
+# Secrets
 .env
-data/movies_raw.csv
+
+# VS Code workspace file
+*.code-workspace
+
+# Python
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
