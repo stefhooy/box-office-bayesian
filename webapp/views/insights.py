@@ -60,6 +60,10 @@ def render():
          "Ablation Δ = +0.000 — dropping release timing changes nothing. Summer and Holiday look better in isolation, "
          "but that signal is entirely explained by genre: blockbuster genres cluster in summer because studios schedule "
          "them there, not because summer causes success."),
+        ("🎞️  Market eras changed the background risk",
+         "The late-2010s peak blockbuster era delivered the healthiest balance of upside and downside, while the COVID "
+         "shock sharply reduced blockbuster frequency and spiked flop risk. Post-COVID recovery is visible, but the "
+         "theatrical market remains structurally harsher than the pre-2020 peak."),
     ]
     for title, body in findings:
         st.markdown(
@@ -87,6 +91,17 @@ def render():
                "Bayesian Network structure — PC skeleton plus domain knowledge")
 
     st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
+    st.markdown("### Era Analysis")
+
+    era1, era2 = st.columns(2, gap="large")
+    with era1:
+        _chart("era_blockbuster_flop_timeline.png",
+               "Year-by-year theatrical risk — blockbuster and flop rates from 2000 to 2025")
+    with era2:
+        _chart("era_rate_comparison.png",
+               "Era average comparison — which periods were healthiest or riskiest for theatrical releases")
+
+    st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
     st.markdown("### Extra Exploration")
 
     extra1, extra2 = st.columns(2, gap="large")
@@ -102,22 +117,14 @@ def render():
         _chart("budget_revenue_scatter.png",
                "Budget vs revenue scatter — the scale effect and widening payoff dispersion")
     with extra4:
-        _chart("fig4_prestige_vs_revenue.png",
-               "Prestige vs revenue — star power helps, but with huge variance and diminishing clarity")
+        _chart("revenue_trend.png",
+               "Revenue trend over time — long-run changes in theatrical scale")
 
     extra5, extra6 = st.columns(2, gap="large")
     with extra5:
-        _chart("revenue_trend.png",
-               "Revenue trend over time — long-run changes in theatrical scale")
+        _chart("feature_importance.png",
+               "Feature importance and confusion view — another angle on predictive performance")
     with extra6:
-        _chart("fig8_outcome_by_era.png",
-               "Outcome by era — how success profiles shift across time periods")
-
-    extra7, extra8 = st.columns(2, gap="large")
-    with extra7:
-        _chart("fig5_outcome_by_window.png",
-               "Outcome by release window — useful descriptively, even if not causal in the BN")
-    with extra8:
         _chart("inference_scenarios.png",
                "Inference scenarios — how predicted outcomes move under different creative and budget setups")
 
