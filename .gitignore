@@ -8,4 +8,3 @@
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
-data/actor_prestige_lookup.json
