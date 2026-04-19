@@ -9,7 +9,7 @@ CSS = """
   html, body, [class*="css"], p, div, label, button {
       font-family: 'Barlow', sans-serif !important;
   }
-  .block-container { padding-top: 1.8rem !important; }
+  .block-container { padding-top: 2.4rem !important; }
 
   .stApp {
       background-color: #080808 !important;
