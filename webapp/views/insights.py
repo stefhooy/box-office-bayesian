@@ -1,5 +1,15 @@
 import streamlit as st
+
 from webapp.config import OUT_DIR
+
+
+def _chart(path_name: str, caption: str) -> None:
+    path = OUT_DIR / path_name
+    if path.exists():
+        st.caption(caption)
+        st.image(str(path), use_container_width=True)
+    else:
+        st.info(f"Chart not available: {path_name}")
 
 
 def render():
@@ -24,8 +34,11 @@ def render():
         ("14.4%", "Base Blockbuster Rate"),
         ("55.8%", "BN vs Absolute-threshold"),
     ]):
-        col.markdown(f"<div class='stat-pill'><div class='big'>{big}</div>"
-                     f"<div class='lbl'>{lbl}</div></div>", unsafe_allow_html=True)
+        col.markdown(
+            f"<div class='stat-pill'><div class='big'>{big}</div>"
+            f"<div class='lbl'>{lbl}</div></div>",
+            unsafe_allow_html=True,
+        )
 
     st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
     st.markdown("### What Actually Drives Box Office Success")
@@ -43,33 +56,70 @@ def render():
          "Ablation Δ = +0.032 — A-list ensembles reach 20.6% P(Blockbuster) vs 10.9% for Emerging. "
          "Crucially, the PC algorithm found prestige does NOT directly drive outcome — it operates through "
          "the budget and genre choices it enables. The star's name gets you the budget; the budget drives the result."),
-        ("📅  Release window is a red herring",
+        ("📆  Release window is a red herring",
          "Ablation Δ = +0.000 — dropping release timing changes nothing. Summer and Holiday look better in isolation, "
          "but that signal is entirely explained by genre: blockbuster genres cluster in summer because studios schedule "
          "them there, not because summer causes success."),
     ]
     for title, body in findings:
-        st.markdown(f"<div class='finding-card'><h4>{title}</h4><p>{body}</p></div>",
-                    unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='finding-card'><h4>{title}</h4><p>{body}</p></div>",
+            unsafe_allow_html=True,
+        )
 
     st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
-    st.markdown("### Charts")
+    st.markdown("### Core Diagnostic Charts")
 
     ch1, ch2 = st.columns(2, gap="large")
     with ch1:
-        st.caption("What drives P(Blockbuster) — marginal effect of each feature")
-        st.image(str(OUT_DIR / "conclusion_drivers.png"), use_container_width=True)
+        _chart("conclusion_drivers.png",
+               "What drives P(Blockbuster) — marginal effect of each feature")
     with ch2:
-        st.caption("Sensitivity analysis — ablation importance + heatmaps")
-        st.image(str(OUT_DIR / "sensitivity_analysis.png"), use_container_width=True)
+        _chart("sensitivity_analysis.png",
+               "Sensitivity analysis — ablation importance and conditional heatmaps")
 
     ch3, ch4 = st.columns(2, gap="large")
     with ch3:
-        st.caption("Model comparison — BN vs Random Forest vs Logistic Regression")
-        st.image(str(OUT_DIR / "model_comparison.png"), use_container_width=True)
+        _chart("model_comparison.png",
+               "Model comparison — Bayesian Network vs benchmark classifiers")
     with ch4:
-        st.caption("Bayesian Network structure (PC skeleton + domain knowledge)")
-        st.image(str(OUT_DIR / "bayesian_network_dag.png"), use_container_width=True)
+        _chart("bayesian_network_dag.png",
+               "Bayesian Network structure — PC skeleton plus domain knowledge")
+
+    st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
+    st.markdown("### Extra Exploration")
+
+    extra1, extra2 = st.columns(2, gap="large")
+    with extra1:
+        _chart("outcome_distribution.png",
+               "Outcome mix — how often films end up as Flop, Hit, or Blockbuster")
+    with extra2:
+        _chart("outcome_breakdowns.png",
+               "Outcome breakdowns — a compact look at how classes shift across segments")
+
+    extra3, extra4 = st.columns(2, gap="large")
+    with extra3:
+        _chart("budget_revenue_scatter.png",
+               "Budget vs revenue scatter — the scale effect and widening payoff dispersion")
+    with extra4:
+        _chart("fig4_prestige_vs_revenue.png",
+               "Prestige vs revenue — star power helps, but with huge variance and diminishing clarity")
+
+    extra5, extra6 = st.columns(2, gap="large")
+    with extra5:
+        _chart("revenue_trend.png",
+               "Revenue trend over time — long-run changes in theatrical scale")
+    with extra6:
+        _chart("fig8_outcome_by_era.png",
+               "Outcome by era — how success profiles shift across time periods")
+
+    extra7, extra8 = st.columns(2, gap="large")
+    with extra7:
+        _chart("fig5_outcome_by_window.png",
+               "Outcome by release window — useful descriptively, even if not causal in the BN")
+    with extra8:
+        _chart("inference_scenarios.png",
+               "Inference scenarios — how predicted outcomes move under different creative and budget setups")
 
     st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
 
@@ -90,8 +140,10 @@ def render():
              "The ensemble score covers the first three billed actors. Films with four or more major stars still understate total star power."),
         ]
         for title, body in limits:
-            st.markdown(f"<div class='limit-item'><strong>{title}</strong><br>{body}</div>",
-                        unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='limit-item'><strong>{title}</strong><br>{body}</div>",
+                unsafe_allow_html=True,
+            )
 
     with asm_col:
         st.markdown("### Modeling Assumptions")
@@ -106,8 +158,10 @@ def render():
              "Adds 5 uniform pseudo-counts to all CPD cells. Weak relative to 3,278 samples — prevents zero-probability estimates in sparse cells like Mega + Horror."),
         ]
         for title, body in assumptions:
-            st.markdown(f"<div class='limit-item'><strong>{title}</strong><br>{body}</div>",
-                        unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='limit-item'><strong>{title}</strong><br>{body}</div>",
+                unsafe_allow_html=True,
+            )
 
     st.markdown("""
     <br>

@@ -2,8 +2,11 @@ CSS = """
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Barlow+Condensed:wght@600;700;800&display=swap');
 
-  #MainMenu, footer, header { visibility: hidden; }
-  html, body, [class*="css"], p, div, span, label, button {
+  #MainMenu, footer { visibility: hidden; }
+  header {
+      background: transparent !important;
+  }
+  html, body, [class*="css"], p, div, label, button {
       font-family: 'Barlow', sans-serif !important;
   }
   .block-container { padding-top: 1.8rem !important; }
@@ -111,83 +114,25 @@ CSS = """
       font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: white;
   }
 
-  /* Collapse button (inside sidebar) */
-  [data-testid="stSidebarCollapseButton"] {
-      background: #1a1a1a !important; border: 1px solid #444 !important;
-      border-radius: 50% !important; width: 32px !important; height: 32px !important;
-      cursor: pointer !important; position: relative !important;
-  }
-  [data-testid="stSidebarCollapseButton"] span { font-size: 0 !important; color: transparent !important; }
-  [data-testid="stSidebarCollapseButton"] svg  { width: 0 !important; height: 0 !important; }
-  [data-testid="stSidebarCollapseButton"]::after {
-      content: '◀' !important; font-family: Arial, sans-serif !important;
-      font-size: 13px !important; color: #f5c518 !important; position: absolute !important;
-      top: 50% !important; left: 50% !important; transform: translate(-50%,-50%) !important;
-      pointer-events: none !important;
+  /* Native sidebar toggle styling. Keep Streamlit's own icon visible. */
+  [data-testid="stSidebarCollapseButton"],
+  [data-testid="collapsedControl"] {
+      background: rgba(245, 197, 24, 0.06) !important;
+      border: 1px solid rgba(245, 197, 24, 0.35) !important;
+      border-radius: 8px !important;
+      width: 36px !important;
+      height: 36px !important;
+      cursor: pointer !important;
+      box-shadow: 0 0 10px rgba(245, 197, 24, 0.12) !important;
   }
 
-  /* Expand button (main area when sidebar hidden) */
-  [data-testid="collapsedControl"] {
-      background: #1a1a1a !important; border: 2px solid #f5c518 !important;
-      border-radius: 50% !important; width: 40px !important; height: 40px !important;
-      cursor: pointer !important; position: relative !important;
-      box-shadow: 0 0 12px rgba(245,197,24,0.35) !important;
-  }
-  [data-testid="collapsedControl"] span { font-size: 0 !important; color: transparent !important; }
-  [data-testid="collapsedControl"] svg  { width: 0 !important; height: 0 !important; }
-  [data-testid="collapsedControl"]::after {
-      content: '▶' !important; font-family: Arial, sans-serif !important;
-      font-size: 15px !important; color: #f5c518 !important; position: absolute !important;
-      top: 50% !important; left: 50% !important; transform: translate(-50%,-50%) !important;
-      pointer-events: none !important;
+  [data-testid="stSidebarCollapseButton"] span,
+  [data-testid="stSidebarCollapseButton"] svg,
+  [data-testid="collapsedControl"] span,
+  [data-testid="collapsedControl"] svg {
+      display: block !important;
+      color: #f5c518 !important;
+      fill: #f5c518 !important;
   }
 </style>
-"""
-
-SIDEBAR_TOGGLE_JS = """
-<script>
-(function() {
-  function setup() {
-    var p = window.parent.document;
-    var sidebar = p.querySelector('[data-testid="stSidebar"]');
-    if (!sidebar) { setTimeout(setup, 300); return; }
-
-    if (!p.getElementById('sb-expand-btn')) {
-      var btn = p.createElement('button');
-      btn.id = 'sb-expand-btn';
-      btn.title = 'Show sidebar';
-      btn.innerHTML = '&#9655;';
-      btn.style.cssText = [
-        'position:fixed','top:50%','left:8px','transform:translateY(-50%)',
-        'z-index:99999','background:#1a1a1a','border:2px solid #f5c518',
-        'border-radius:50%','width:38px','height:38px','cursor:pointer',
-        'color:#f5c518','font-size:16px','line-height:34px','text-align:center',
-        'box-shadow:0 0 14px rgba(245,197,24,0.4)','display:none','transition:background 0.2s'
-      ].join(';');
-      btn.onmouseover = function(){ this.style.background='#2a2a2a'; };
-      btn.onmouseout  = function(){ this.style.background='#1a1a1a'; };
-      btn.onclick = function() {
-        try {
-          window.parent.eval(
-            "var b=document.querySelector('[data-testid=\\"stSidebarCollapseButton\\"]');" +
-            "if(b)b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));"
-          );
-        } catch(e) {
-          var b = window.parent.document.querySelector('[data-testid="stSidebarCollapseButton"]');
-          if (b) b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
-        }
-      };
-      p.body.appendChild(btn);
-    }
-
-    setInterval(function() {
-      var sb  = p.querySelector('[data-testid="stSidebar"]');
-      var btn = p.getElementById('sb-expand-btn');
-      if (!sb || !btn) return;
-      btn.style.display = sb.getBoundingClientRect().right < 10 ? 'block' : 'none';
-    }, 250);
-  }
-  setTimeout(setup, 600);
-})();
-</script>
 """

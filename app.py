@@ -1,7 +1,6 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
-from webapp.styles import CSS, SIDEBAR_TOGGLE_JS
+from webapp.styles import CSS
 from webapp.config import load_engine, load_actors
 from webapp.views import home, predict, insights
 
@@ -15,7 +14,6 @@ st.set_page_config(
 
 # ── Global CSS + sidebar toggle JS ────────────────────────────────────────────
 st.markdown(CSS, unsafe_allow_html=True)
-components.html(SIDEBAR_TOGGLE_JS, height=0)
 
 # ── Load model & actors (cached) ──────────────────────────────────────────────
 infer        = load_engine()
