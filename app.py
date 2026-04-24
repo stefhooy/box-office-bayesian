@@ -703,15 +703,6 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
     verdict_text = "BLOCKBUSTER" if is_bb else "NOT A BLOCKBUSTER"
     verdict_color = "#2980b9" if is_bb else "#e74c3c"
     verdict_icon = "🏆" if is_bb else "📉"
-    plain_sentence = (
-        f"The model gives this film a <strong>{pct}% chance</strong> of grossing "
-        f"≥ $400M worldwide. That is <strong>above</strong> the 50% decision threshold — "
-        f"the model calls it a <strong style='color:#2980b9;'>Blockbuster</strong>."
-        if is_bb else
-        f"The model gives this film a <strong>{pct}% chance</strong> of grossing "
-        f"≥ $400M worldwide. That is <strong>below</strong> the 50% decision threshold — "
-        f"the model calls it <strong style='color:#e74c3c;'>Not a Blockbuster</strong>."
-    )
 
     # ── Full-width verdict banner ─────────────────────────────────────────────
     st.markdown(
@@ -721,46 +712,70 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
         f"<div style='font-size:2.8rem;margin-bottom:8px;'>{verdict_icon}</div>"
         f"<div class='display' style='font-size:4rem;color:{verdict_color};"
         f"letter-spacing:4px;line-height:1;'>{verdict_text}</div>"
-        f"<div style='font-size:13px;color:#666;margin-top:16px;line-height:1.7;'>"
-        f"{plain_sentence}</div>"
+        f"<div style='font-size:14px;color:#999;margin-top:14px;'>"
+        f"The model estimates a <strong style='color:#fff;'>{pct}% probability</strong>"
+        f" that this film will gross <strong style='color:#fff;'>≥ $400M</strong>"
+        f" worldwide (the blockbuster threshold).</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
 
-    # ── Split probability scale ───────────────────────────────────────────────
-    st.markdown(
-        f"<div style='margin:0 0 28px;'>"
-        f"<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
-        f"color:#444;margin-bottom:8px;'>Where this film sits on the scale</div>"
-        f"<div style='display:flex;height:36px;border-radius:8px;overflow:hidden;"
-        f"position:relative;'>"
-        f"<div style='flex:1;background:#e74c3c22;border:1px solid #e74c3c44;"
-        f"display:flex;align-items:center;justify-content:center;"
-        f"font-size:11px;color:#e74c3c;letter-spacing:1px;font-weight:600;'>"
-        f"NOT A BLOCKBUSTER</div>"
-        f"<div style='width:2px;background:#f5c518;opacity:0.8;flex-shrink:0;'></div>"
-        f"<div style='flex:1;background:#2980b922;border:1px solid #2980b944;"
-        f"display:flex;align-items:center;justify-content:center;"
-        f"font-size:11px;color:#2980b9;letter-spacing:1px;font-weight:600;'>"
-        f"BLOCKBUSTER</div>"
-        f"</div>"
-        f"<div style='position:relative;height:28px;margin-top:2px;'>"
-        f"<div style='position:absolute;left:{pct}%;transform:translateX(-50%);'>"
-        f"<div style='width:3px;height:14px;background:{verdict_color};"
-        f"margin:0 auto;'></div>"
-        f"<div style='font-size:11px;font-weight:700;color:{verdict_color};"
-        f"text-align:center;white-space:nowrap;'>{pct}% ← your film</div>"
-        f"</div>"
-        f"<div style='position:absolute;left:50%;transform:translateX(-50%);'>"
-        f"<div style='font-size:9px;color:#f5c518;text-align:center;"
-        f"letter-spacing:1px;margin-top:16px;'>50% line</div>"
-        f"</div>"
-        f"</div>"
-        f"</div>",
-        unsafe_allow_html=True,
-    )
+    # ── Two-column explainer ──────────────────────────────────────────────────
+    ex1, ex2 = st.columns(2, gap="large")
 
-    # ── Inputs used (collapsed, slim) ────────────────────────────────────────
+    with ex1:
+        # Split scale showing where the film sits
+        st.markdown(
+            f"<div style='margin-bottom:6px;font-size:10px;letter-spacing:2px;"
+            f"text-transform:uppercase;color:#444;'>Where this film sits</div>"
+            f"<div style='display:flex;height:40px;border-radius:8px;overflow:hidden;'>"
+            f"<div style='flex:1;background:#e74c3c22;border:1px solid #e74c3c44;"
+            f"display:flex;align-items:center;justify-content:center;"
+            f"font-size:11px;color:#e74c3c;font-weight:700;letter-spacing:1px;'>"
+            f"< $400M</div>"
+            f"<div style='width:2px;background:#f5c518;flex-shrink:0;'></div>"
+            f"<div style='flex:1;background:#2980b922;border:1px solid #2980b944;"
+            f"display:flex;align-items:center;justify-content:center;"
+            f"font-size:11px;color:#2980b9;font-weight:700;letter-spacing:1px;'>"
+            f"≥ $400M 🏆</div>"
+            f"</div>"
+            f"<div style='position:relative;height:30px;'>"
+            f"<div style='position:absolute;left:{pct}%;transform:translateX(-50%);'>"
+            f"<div style='width:2px;height:10px;background:{verdict_color};"
+            f"margin:0 auto;'></div>"
+            f"<div style='font-size:11px;font-weight:700;color:{verdict_color};"
+            f"white-space:nowrap;'>{pct}% — your film</div>"
+            f"</div>"
+            f"</div>"
+            f"<div style='font-size:11px;color:#444;margin-top:4px;'>"
+            f"Gold line = 50% decision boundary. Films to its right are called"
+            f" Blockbuster; to its left, Not a Blockbuster.</div>",
+            unsafe_allow_html=True,
+        )
+
+    with ex2:
+        # Revenue context box
+        st.markdown(
+            f"<div style='background:#0a0a0a;border:1px solid #1e1e1e;"
+            f"border-radius:10px;padding:16px 18px;font-size:13px;"
+            f"color:#777;line-height:1.85;'>"
+            f"<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
+            f"color:#444;margin-bottom:10px;'>What this model predicts</div>"
+            f"<div style='margin-bottom:8px;'>"
+            f"<span style='color:#aaa;font-weight:600;'>This is a classifier, "
+            f"not a revenue calculator.</span> It does not output a dollar figure."
+            f" It predicts whether this film will cross the "
+            f"<strong style='color:#f5c518;'>$400M worldwide gross</strong> mark.</div>"
+            f"<div style='border-top:1px solid #1a1a1a;padding-top:10px;"
+            f"font-size:11.5px;color:#555;'>"
+            f"Want full revenue tier probabilities — Flop, Break-even, Hit, Blockbuster?<br>"
+            f"<strong style='color:#2980b9;'>→ Use Layer 1 (Bayesian Network)</strong>"
+            f" — it gives the complete distribution across all four outcomes.</div>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
+    # ── Inputs used (collapsed) ───────────────────────────────────────────────
     tier_map = gb_meta.get("tier_budget_adj", {})
     budget_adj = tier_map.get(budget_tier, 75_000_000)
     with st.expander("Show inputs used by the model", expanded=False):
