@@ -18,7 +18,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import roc_auc_score
+
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import (
     MultiLabelBinarizer, OneHotEncoder, StandardScaler,
@@ -80,6 +80,7 @@ except Exception:
     pass
 
 # ── custom transformer (defined here so pickle is never needed) ───────────────
+
 
 class GenreMultiHot(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
@@ -302,103 +303,126 @@ def page_home():
 
     st.markdown("""
     <div style='margin-top:36px;'>
-      <div class='display' style='font-size:3rem;color:#aaa;'>The</div>
+      <div class='display' style='font-size:3rem;color:#555;letter-spacing:2px;'>The</div>
       <div class='display gold-gradient' style='font-size:6.5rem;line-height:0.85;'>
         Blockbuster<br>Formula
       </div>
     </div>
     <div class='film-strip' style='margin:24px 0;'></div>
-    <p style='font-size:1.1rem;color:#999;max-width:680px;line-height:1.8;
-              font-weight:300;margin-bottom:32px;'>
-      What actually makes a film a
-      <strong style='color:#f5c518;'>blockbuster</strong>?
-      Is it the star, the genre, the budget — or just timing?<br><br>
-      This project analysed
-      <strong style='color:#fff;'>3,278 English-language films (2000–2025)</strong>
-      through a <strong style='color:#fff;'>two-layer model</strong>: a
-      Bayesian Network that <em>explains</em> why outcomes happen, and a
-      Gradient Boosting classifier that <em>predicts</em> whether a specific
-      film will break out.
-    </p>
+    """, unsafe_allow_html=True)
+
+    # Opening hook
+    st.markdown("""
+    <div style='max-width:760px;margin-bottom:32px;'>
+      <p style='font-size:1.2rem;color:#bbb;line-height:1.85;font-weight:300;
+                border-left:3px solid #f5c518;padding-left:20px;'>
+        Every year, studios bet <strong style='color:#f5c518;'>hundreds of millions
+        of dollars</strong> on a question no one can answer with certainty:
+        <em>will this film be a blockbuster?</em>
+      </p>
+      <p style='font-size:1rem;color:#777;line-height:1.85;font-weight:300;
+                margin-top:18px;'>
+        We analysed <strong style='color:#fff;'>3,278 English-language films released
+        between 2000 and 2025</strong> to crack that question — not with a single model,
+        but with <strong style='color:#fff;'>two complementary tools</strong> that
+        each answer a different question.
+      </p>
+    </div>
+
+    <div style='display:flex;align-items:center;gap:12px;margin-bottom:32px;
+                font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#444;'>
+      <span style='color:#2980b9;font-weight:700;'>WHY do blockbusters happen?</span>
+      <span style='color:#333;'>→  Bayesian Network</span>
+      <span style='margin:0 16px;color:#1a1a1a;'>|</span>
+      <span style='color:#f5c518;font-weight:700;'>WILL this film be one?</span>
+      <span style='color:#333;'>→  Gradient Boosting</span>
+    </div>
     """, unsafe_allow_html=True)
 
     st.markdown("<hr style='margin:0 0 32px;border-color:#1a1a1a;'>", unsafe_allow_html=True)
 
-    # Two-layer cards
+    # Two-layer engine cards
+    st.markdown("""
+    <div class='display' style='font-size:1.5rem;color:#555;letter-spacing:3px;
+         text-transform:uppercase;margin-bottom:20px;'>Two tools. One question.</div>
+    """, unsafe_allow_html=True)
+
     l1, l2 = st.columns(2, gap="large")
     with l1:
         st.markdown("""
-        <div style='background:#0c1118;border:1px solid #2980b9;border-radius:16px;
-                    padding:28px 24px;height:100%;'>
+        <div style='background:#080d14;border:1px solid #2980b9;border-radius:16px;
+                    padding:28px 24px;height:100%;position:relative;overflow:hidden;'>
+          <div style='position:absolute;top:16px;right:16px;font-size:10px;
+                      letter-spacing:3px;text-transform:uppercase;color:#1a3a52;
+                      font-weight:700;'>LAYER 1</div>
           <div style='font-size:10px;letter-spacing:4px;text-transform:uppercase;
-                      color:#2980b9;font-weight:700;margin-bottom:8px;'>Layer 1</div>
-          <div class='display' style='font-size:2.4rem;color:#fff;margin-bottom:6px;'>
+                      color:#2980b9;font-weight:700;margin-bottom:4px;'>
+            Explanation Engine
+          </div>
+          <div class='display' style='font-size:2.6rem;color:#fff;margin-bottom:4px;'>
             Bayesian Network
           </div>
-          <div style='font-size:11px;letter-spacing:2px;text-transform:uppercase;
-                      color:#444;margin-bottom:14px;font-weight:700;'>
-            The explanation engine
+          <div style='font-size:1.6rem;color:#2980b9;font-weight:300;
+                      font-style:italic;margin-bottom:16px;letter-spacing:1px;'>
+            "WHY do blockbusters happen?"
           </div>
-          <p style='color:#888;font-size:13.5px;line-height:1.75;margin-bottom:16px;'>
-            Uses four pre-production decisions —
-            <strong style='color:#bbb;'>budget tier, genre, actor prestige, release
-            window</strong> — to return the full probability distribution over
-            Flop, Break-even, Hit, and Blockbuster. Built for scenario reasoning:
-            <em>"what happens if I move from Mid to Mega budget?"</em>
+          <p style='color:#777;font-size:13.5px;line-height:1.8;margin-bottom:18px;'>
+            A probabilistic causal model that maps how
+            <strong style='color:#aaa;'>budget, genre, actor prestige, and release
+            timing</strong> interact to produce each outcome. It doesn't give you a
+            single answer — it gives you the <em>full probability distribution</em>
+            across Flop, Break-even, Hit, and Blockbuster, plus a What-If panel so
+            you can trace exactly which decision moves the needle.
           </p>
-          <div style='display:flex;gap:8px;flex-wrap:wrap;'>
-            <span style='background:#2980b915;border:1px solid #2980b960;
-                         border-radius:20px;padding:3px 11px;font-size:11px;
-                         color:#2980b9;'>4 inputs</span>
-            <span style='background:#2980b915;border:1px solid #2980b960;
-                         border-radius:20px;padding:3px 11px;font-size:11px;
-                         color:#2980b9;'>45.4% 4-class acc</span>
-            <span style='background:#2980b915;border:1px solid #2980b960;
-                         border-radius:20px;padding:3px 11px;font-size:11px;
-                         color:#2980b9;'>Probabilistic output</span>
+          <div style='border-top:1px solid #1a2a3a;padding-top:14px;
+                      font-size:12px;color:#2980b9;line-height:1.8;'>
+            ✦ &nbsp;4 categorical inputs · causal DAG structure<br>
+            ✦ &nbsp;45.4% four-class accuracy (genuine outcome ambiguity)<br>
+            ✦ &nbsp;What-If panel: change one lever, see what shifts
           </div>
         </div>
         """, unsafe_allow_html=True)
 
     with l2:
         st.markdown("""
-        <div style='background:#100e00;border:1px solid #f5c518;border-radius:16px;
-                    padding:28px 24px;height:100%;'>
+        <div style='background:#0d0a00;border:1px solid #f5c518;border-radius:16px;
+                    padding:28px 24px;height:100%;position:relative;overflow:hidden;'>
+          <div style='position:absolute;top:16px;right:16px;font-size:10px;
+                      letter-spacing:3px;text-transform:uppercase;color:#3a3000;
+                      font-weight:700;'>LAYER 2</div>
           <div style='font-size:10px;letter-spacing:4px;text-transform:uppercase;
-                      color:#f5c518;font-weight:700;margin-bottom:8px;'>Layer 2</div>
-          <div class='display' style='font-size:2.4rem;color:#fff;margin-bottom:6px;'>
+                      color:#f5c518;font-weight:700;margin-bottom:4px;'>
+            Prediction Engine
+          </div>
+          <div class='display' style='font-size:2.6rem;color:#fff;margin-bottom:4px;'>
             Gradient Boosting
           </div>
-          <div style='font-size:11px;letter-spacing:2px;text-transform:uppercase;
-                      color:#444;margin-bottom:14px;font-weight:700;'>
-            The prediction engine
+          <div style='font-size:1.6rem;color:#f5c518;font-weight:300;
+                      font-style:italic;margin-bottom:16px;letter-spacing:1px;'>
+            "WILL this film be a blockbuster?"
           </div>
-          <p style='color:#888;font-size:13.5px;line-height:1.75;margin-bottom:16px;'>
-            Trained on a richer 9-feature set to answer one binary question:
-            <strong style='color:#bbb;'>Blockbuster or not?</strong>
-            Budget is the dominant driver at 54.5% importance. Plug in your
-            film details and get a probability score backed by 93.9% test
-            accuracy and a 0.969 ROC AUC.
+          <p style='color:#777;font-size:13.5px;line-height:1.8;margin-bottom:18px;'>
+            A high-accuracy binary classifier trained on <strong style='color:#aaa;'>9
+            features</strong> — including budget, audience engagement signals, and
+            genre flags — to return a single probability score and a verdict:
+            <strong style='color:#f5c518;'>Blockbuster</strong> or not. Budget alone
+            accounts for <strong style='color:#aaa;'>54.5% of feature importance</strong>.
+            Plug in your film, get the number.
           </p>
-          <div style='display:flex;gap:8px;flex-wrap:wrap;'>
-            <span style='background:#f5c51815;border:1px solid #f5c51860;
-                         border-radius:20px;padding:3px 11px;font-size:11px;
-                         color:#f5c518;'>9 inputs</span>
-            <span style='background:#f5c51815;border:1px solid #f5c51860;
-                         border-radius:20px;padding:3px 11px;font-size:11px;
-                         color:#f5c518;'>93.9% accuracy</span>
-            <span style='background:#f5c51815;border:1px solid #f5c51860;
-                         border-radius:20px;padding:3px 11px;font-size:11px;
-                         color:#f5c518;'>0.969 ROC AUC</span>
+          <div style='border-top:1px solid #3a2e00;padding-top:14px;
+                      font-size:12px;color:#f5c518;line-height:1.8;'>
+            ✦ &nbsp;9 features · trained on 3,278 films<br>
+            ✦ &nbsp;93.9% test accuracy · 0.969 ROC AUC<br>
+            ✦ &nbsp;Binary verdict + probability score
           </div>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<hr style='margin:32px 0;border-color:#1a1a1a;'>", unsafe_allow_html=True)
 
-    # Stats
+    # Stats strip
     st.markdown("""
-    <div class='display' style='font-size:2rem;color:#f0f0f0;
+    <div class='display' style='font-size:1.8rem;color:#f0f0f0;
          letter-spacing:2px;margin-bottom:16px;'>By the numbers</div>
     """, unsafe_allow_html=True)
     for col, (big, lbl) in zip(st.columns(5, gap="medium"), [
@@ -416,36 +440,42 @@ def page_home():
 
     st.markdown("<hr style='margin:32px 0;border-color:#1a1a1a;'>", unsafe_allow_html=True)
 
-    # How to use
+    # Three-act flow
     st.markdown("""
-    <div class='display' style='font-size:2rem;color:#f0f0f0;
-         letter-spacing:2px;margin-bottom:16px;'>How to use</div>
+    <div class='display' style='font-size:1.8rem;color:#f0f0f0;
+         letter-spacing:2px;margin-bottom:20px;'>Follow the story</div>
     """, unsafe_allow_html=True)
-    for col, (num, title, body) in zip(st.columns(3, gap="large"), [
-        ("01", "Explore Layer 1",
-         "Open the Bayesian Network page. Set four pre-production variables "
-         "and see the full probability distribution. Use the What-If panel "
-         "to see how changing one decision shifts the odds."),
-        ("02", "Predict with Layer 2",
-         "Open the Gradient Boosting page. Get a binary Blockbuster verdict "
-         "with a probability score. Try moving the budget slider from Mid "
-         "to Mega and watch the score jump."),
-        ("03", "Read the Conclusions",
-         "See what both layers reveal together: budget dominates, audience "
-         "scale beats quality, genre matters at the margins, and the market "
-         "changed permanently after COVID."),
+    for col, (act, label, title, body, accent) in zip(st.columns(3, gap="large"), [
+        ("ACT I", "🔍  Explanation Engine", "Understand the WHY",
+         "Open the Bayesian Network page. Set four pre-production variables and "
+         "watch the probability distribution shift in real time. Use the What-If "
+         "panel to trace exactly which decision moves P(Blockbuster) the most.",
+         "#2980b9"),
+        ("ACT II", "🎯  Prediction Engine", "Get the Verdict",
+         "Open the Gradient Boosting page. This is where the formula runs. "
+         "Set your film's budget, genre, and star — and the model returns a "
+         "binary verdict backed by 93.9% accuracy. Move the budget from Mid "
+         "to Mega and watch the probability jump.",
+         "#f5c518"),
+        ("ACT III", "📊  What We Found", "The Takeaway",
+         "Budget dominates. Audience scale beats critical quality. Genre sets "
+         "the ceiling but can't rescue a broken budget. And the theatrical "
+         "market has permanently changed since COVID. Read the full breakdown.",
+         "#2ecc71"),
     ]):
         with col:
             st.markdown(
-                f"<div style='background:#111;border:1px solid #222;"
-                f"border-radius:14px;padding:24px 20px;height:100%;'>"
-                f"<div class='display gold-gradient'"
-                f"     style='font-size:3rem;margin-bottom:10px;'>{num}</div>"
+                f"<div style='background:#0a0a0a;border:1px solid #1c1c1c;"
+                f"border-top:3px solid {accent};border-radius:12px;"
+                f"padding:22px 18px;height:100%;'>"
+                f"<div style='font-size:9px;letter-spacing:3px;font-weight:700;"
+                f"color:{accent};text-transform:uppercase;margin-bottom:6px;'>{act}</div>"
+                f"<div style='font-size:11px;color:#444;margin-bottom:10px;"
+                f"letter-spacing:1px;'>{label}</div>"
                 f"<div style='font-family:\"Barlow Condensed\",sans-serif;"
-                f"     font-size:14px;font-weight:700;letter-spacing:1px;"
-                f"     text-transform:uppercase;color:#f0f0f0;"
-                f"     margin-bottom:9px;'>{title}</div>"
-                f"<div style='font-size:13px;color:#777;line-height:1.65;'>"
+                f"font-size:1.2rem;font-weight:700;color:#e0e0e0;"
+                f"margin-bottom:10px;letter-spacing:0.5px;'>{title}</div>"
+                f"<div style='font-size:12.5px;color:#666;line-height:1.7;'>"
                 f"{body}</div></div>",
                 unsafe_allow_html=True,
             )
@@ -460,21 +490,44 @@ def page_bayesian(infer, actor_lookup, actor_names):
     st.markdown("""
     <div style='margin-bottom:6px;'>
       <div style='font-size:10px;letter-spacing:4px;text-transform:uppercase;
-                  color:#2980b9;font-weight:700;margin-bottom:4px;'>Layer 1</div>
+                  color:#2980b9;font-weight:700;margin-bottom:2px;'>
+        Layer 1 · Explanation Engine
+      </div>
       <div class='display' style='font-size:4.5rem;color:#fff;line-height:0.88;'>
         Bayesian Network
       </div>
-      <div style='font-size:11px;letter-spacing:2px;text-transform:uppercase;
-                  color:#444;margin-top:6px;font-weight:700;'>The explanation engine</div>
-      <p style='color:#666;font-size:13.5px;font-weight:300;max-width:620px;
-                line-height:1.7;margin-top:10px;'>
-        Set four pre-production variables. The Bayesian Network returns the
-        full probability distribution over <strong style='color:#aaa;'>Flop,
-        Break-even, Hit, and Blockbuster</strong>. Use the What-If panel
-        below to see how each decision shifts the odds.
-      </p>
+      <div style='font-size:1.4rem;color:#2980b9;font-style:italic;
+                  font-weight:300;margin-top:8px;letter-spacing:1px;'>
+        "WHY do blockbusters happen?"
+      </div>
     </div>
-    <div class='film-strip'></div>
+    <div class='film-strip' style='margin:16px 0;'></div>
+    <div style='display:flex;gap:16px;align-items:flex-start;max-width:820px;
+                margin-bottom:24px;'>
+      <div style='flex:2;'>
+        <p style='color:#777;font-size:13.5px;font-weight:300;line-height:1.8;margin:0;'>
+          This is the <strong style='color:#2980b9;'>explanation engine</strong> — it
+          does not predict a single answer. It reasons causally through the decision
+          chain that leads to a box office outcome, returning the
+          <strong style='color:#aaa;'>full probability distribution</strong> across
+          Flop, Break-even, Hit, and Blockbuster. Use it to understand
+          <em>why</em> the odds look the way they do, and use the
+          <strong style='color:#aaa;'>What-If panel below</strong> to trace which
+          single decision moves the needle the most.
+        </p>
+      </div>
+      <div style='flex:1;background:#080d14;border:1px solid #1a3a52;border-radius:10px;
+                  padding:14px 16px;font-size:11.5px;color:#2980b9;line-height:1.9;'>
+        <strong style='color:#aaa;font-size:10px;letter-spacing:2px;
+                        text-transform:uppercase;'>This layer answers</strong><br>
+        ✦ &nbsp;<em>Why</em> does budget dominate?<br>
+        ✦ &nbsp;<em>How much</em> does genre matter?<br>
+        ✦ &nbsp;<em>What if</em> I change one thing?<br>
+        <span style='color:#1a3a52;font-size:10.5px;margin-top:6px;display:block;'>
+          Not for binary prediction → use Layer 2 for that.
+        </span>
+      </div>
+    </div>
     """, unsafe_allow_html=True)
 
     prestige, genre, budget_tier, release = _four_inputs("bn", actor_lookup, actor_names)
@@ -594,25 +647,55 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
     st.markdown("""
     <div style='margin-bottom:6px;'>
       <div style='font-size:10px;letter-spacing:4px;text-transform:uppercase;
-                  color:#f5c518;font-weight:700;margin-bottom:4px;'>Layer 2</div>
+                  color:#f5c518;font-weight:700;margin-bottom:2px;'>
+        Layer 2 · Prediction Engine
+      </div>
       <div class='display' style='font-size:4.5rem;color:#fff;line-height:0.88;'>
         Gradient Boosting
       </div>
-      <div style='font-size:11px;letter-spacing:2px;text-transform:uppercase;
-                  color:#444;margin-top:6px;font-weight:700;'>The prediction engine</div>
-      <p style='color:#666;font-size:13.5px;font-weight:300;max-width:620px;
-                line-height:1.7;margin-top:10px;'>
-        Set your film's pre-production variables. The model returns a binary verdict —
-        <strong style='color:#f5c518;'>Blockbuster</strong> or not — with a probability
-        score. 93.9% test accuracy · 0.969 ROC AUC · trained on 3,278 films.
-      </p>
+      <div style='font-size:1.4rem;color:#f5c518;font-style:italic;
+                  font-weight:300;margin-top:8px;letter-spacing:1px;'>
+        "WILL this film be a blockbuster?"
+      </div>
     </div>
-    <div class='film-strip'></div>
+    <div class='film-strip' style='margin:16px 0;'></div>
+    <div style='display:flex;gap:16px;align-items:flex-start;max-width:820px;
+                margin-bottom:24px;'>
+      <div style='flex:2;'>
+        <p style='color:#777;font-size:13.5px;font-weight:300;line-height:1.8;margin:0;'>
+          This is the <strong style='color:#f5c518;'>prediction engine</strong> —
+          where the formula actually runs. Unlike the Bayesian Network which
+          explains <em>why</em> outcomes happen, this model answers one single
+          binary question: <strong style='color:#fff;'>Blockbuster or not?</strong>
+          Set your film's four key pre-production variables, and the Gradient
+          Boosting classifier — trained on 3,278 films — returns a probability
+          score and a verdict.
+        </p>
+      </div>
+      <div style='flex:1;background:#0d0a00;border:1px solid #3a2e00;border-radius:10px;
+                  padding:14px 16px;font-size:11.5px;color:#f5c518;line-height:1.9;'>
+        <strong style='color:#aaa;font-size:10px;letter-spacing:2px;
+                        text-transform:uppercase;'>Model performance</strong><br>
+        ✦ &nbsp;93.9% test accuracy<br>
+        ✦ &nbsp;0.969 ROC AUC<br>
+        ✦ &nbsp;Budget = 54.5% of importance<br>
+        <span style='color:#3a2e00;font-size:10.5px;margin-top:6px;display:block;'>
+          For causal reasoning → use Layer 1.
+        </span>
+      </div>
+    </div>
     """, unsafe_allow_html=True)
 
     prestige, genre, budget_tier, release = _four_inputs("gb", actor_lookup, actor_names)
 
-    st.markdown("<hr style='margin:22px 0;'>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style='margin:28px 0 20px;display:flex;align-items:center;gap:16px;'>
+      <div style='flex:1;height:1px;background:#1a1a1a;'></div>
+      <div style='font-size:10px;letter-spacing:4px;text-transform:uppercase;
+                  color:#f5c518;font-weight:700;'>The Verdict</div>
+      <div style='flex:1;height:1px;background:#1a1a1a;'></div>
+    </div>
+    """, unsafe_allow_html=True)
 
     prob = predict_gb(gb_pipe, gb_meta, prestige, genre, budget_tier, release)
     is_bb = prob >= 0.5
@@ -688,10 +771,13 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
     # Feature importance bars
     st.markdown("""
     <div class='display' style='font-size:1.8rem;color:#f0f0f0;
-         letter-spacing:2px;margin-bottom:14px;'>What drives this score?</div>
-    <div style='font-size:12px;color:#444;margin-bottom:14px;'>
-      Feature importance from the trained Gradient Boosting model
-    </div>
+         letter-spacing:2px;margin-bottom:8px;'>What drove the score?</div>
+    <p style='font-size:13px;color:#555;max-width:640px;line-height:1.75;
+              margin-bottom:16px;'>
+      The Gradient Boosting model learned these importances from 3,278 films.
+      Budget is not just the biggest lever — it is bigger than every other
+      feature <em>combined</em>.
+    </p>
     """, unsafe_allow_html=True)
 
     for feat_label, imp, color in [
@@ -981,27 +1067,32 @@ with st.sidebar:
     page = st.radio(
         "nav",
         options=[
-            "🏠  Home",
-            "🧮  Layer 1 · Bayesian Network",
-            "🤖  Layer 2 · Gradient Boosting",
-            "📊  Conclusions",
+            "🎬  The Story",
+            "🔍  The Explanation Engine",
+            "🎯  The Prediction Engine",
+            "📊  What We Found",
         ],
         label_visibility="collapsed",
     )
 
     st.markdown("<br>", unsafe_allow_html=True)
-    st.caption(
-        "Layer 1 · Bayesian Network\n"
-        "45.4% 4-class accuracy\n\n"
-        "Layer 2 · Gradient Boosting\n"
-        "93.9% acc · 0.969 AUC"
+    st.markdown(
+        "<div style='font-size:10px;color:#333;line-height:1.8;padding:0 4px;'>"
+        "<strong style='color:#2980b9;'>Layer 1 · Bayesian Network</strong><br>"
+        "Answers: <em>WHY</em> do blockbusters happen?<br>"
+        "Causal reasoning · 4-class output<br><br>"
+        "<strong style='color:#f5c518;'>Layer 2 · Gradient Boosting</strong><br>"
+        "Answers: <em>WILL</em> this film be one?<br>"
+        "Binary verdict · 93.9% accuracy"
+        "</div>",
+        unsafe_allow_html=True,
     )
 
-if page == "🏠  Home":
+if page == "🎬  The Story":
     page_home()
-elif page == "🧮  Layer 1 · Bayesian Network":
+elif page == "🔍  The Explanation Engine":
     page_bayesian(infer, actor_lookup, actor_names)
-elif page == "🤖  Layer 2 · Gradient Boosting":
+elif page == "🎯  The Prediction Engine":
     page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names)
-elif page == "📊  Conclusions":
+elif page == "📊  What We Found":
     page_conclusions()
