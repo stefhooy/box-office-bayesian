@@ -699,84 +699,80 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
 
     prob = predict_gb(gb_pipe, gb_meta, prestige, genre, budget_tier, release)
     is_bb = prob >= 0.5
-    label = "Blockbuster" if is_bb else "Not a Blockbuster"
-    color = "#2980b9" if is_bb else "#e74c3c"
-    icon = "🏆" if is_bb else "📉"
+    pct = int(prob * 100)
+    verdict_text = "BLOCKBUSTER" if is_bb else "NOT A BLOCKBUSTER"
+    verdict_color = "#2980b9" if is_bb else "#e74c3c"
+    verdict_icon = "🏆" if is_bb else "📉"
+    plain_sentence = (
+        f"The model gives this film a <strong>{pct}% chance</strong> of grossing "
+        f"≥ $400M worldwide. That is <strong>above</strong> the 50% decision threshold — "
+        f"the model calls it a <strong style='color:#2980b9;'>Blockbuster</strong>."
+        if is_bb else
+        f"The model gives this film a <strong>{pct}% chance</strong> of grossing "
+        f"≥ $400M worldwide. That is <strong>below</strong> the 50% decision threshold — "
+        f"the model calls it <strong style='color:#e74c3c;'>Not a Blockbuster</strong>."
+    )
 
-    v1, v2, v3 = st.columns([1, 1, 1], gap="large")
+    # ── Full-width verdict banner ─────────────────────────────────────────────
+    st.markdown(
+        f"<div style='background:{verdict_color}14;border:2px solid {verdict_color};"
+        f"border-radius:16px;padding:28px 36px;text-align:center;"
+        f"box-shadow:0 0 60px {verdict_color}22;margin-bottom:20px;'>"
+        f"<div style='font-size:2.8rem;margin-bottom:8px;'>{verdict_icon}</div>"
+        f"<div class='display' style='font-size:4rem;color:{verdict_color};"
+        f"letter-spacing:4px;line-height:1;'>{verdict_text}</div>"
+        f"<div style='font-size:13px;color:#666;margin-top:16px;line-height:1.7;'>"
+        f"{plain_sentence}</div>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
 
-    with v1:
+    # ── Split probability scale ───────────────────────────────────────────────
+    st.markdown(
+        f"<div style='margin:0 0 28px;'>"
+        f"<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
+        f"color:#444;margin-bottom:8px;'>Where this film sits on the scale</div>"
+        f"<div style='display:flex;height:36px;border-radius:8px;overflow:hidden;"
+        f"position:relative;'>"
+        f"<div style='flex:1;background:#e74c3c22;border:1px solid #e74c3c44;"
+        f"display:flex;align-items:center;justify-content:center;"
+        f"font-size:11px;color:#e74c3c;letter-spacing:1px;font-weight:600;'>"
+        f"NOT A BLOCKBUSTER</div>"
+        f"<div style='width:2px;background:#f5c518;opacity:0.8;flex-shrink:0;'></div>"
+        f"<div style='flex:1;background:#2980b922;border:1px solid #2980b944;"
+        f"display:flex;align-items:center;justify-content:center;"
+        f"font-size:11px;color:#2980b9;letter-spacing:1px;font-weight:600;'>"
+        f"BLOCKBUSTER</div>"
+        f"</div>"
+        f"<div style='position:relative;height:28px;margin-top:2px;'>"
+        f"<div style='position:absolute;left:{pct}%;transform:translateX(-50%);'>"
+        f"<div style='width:3px;height:14px;background:{verdict_color};"
+        f"margin:0 auto;'></div>"
+        f"<div style='font-size:11px;font-weight:700;color:{verdict_color};"
+        f"text-align:center;white-space:nowrap;'>{pct}% ← your film</div>"
+        f"</div>"
+        f"<div style='position:absolute;left:50%;transform:translateX(-50%);'>"
+        f"<div style='font-size:9px;color:#f5c518;text-align:center;"
+        f"letter-spacing:1px;margin-top:16px;'>50% line</div>"
+        f"</div>"
+        f"</div>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+
+    # ── Inputs used (collapsed, slim) ────────────────────────────────────────
+    tier_map = gb_meta.get("tier_budget_adj", {})
+    budget_adj = tier_map.get(budget_tier, 75_000_000)
+    with st.expander("Show inputs used by the model", expanded=False):
         st.markdown(
-            f"<div class='outcome-badge' style='background:{color}18;"
-            f"border:2px solid {color};box-shadow:0 0 40px {color}22;'>"
-            f"<div style='font-size:2.5rem;'>{icon}</div>"
-            f"<div style='font-size:10px;letter-spacing:3px;text-transform:uppercase;"
-            f"color:{color};font-weight:700;font-family:\"Barlow Condensed\",sans-serif;"
-            f"margin:6px 0;'>GB Verdict</div>"
-            f"<div class='outcome-name' style='color:{color};font-size:2rem;'>"
-            f"{label}</div>"
-            f"<div style='font-family:\"Bebas Neue\",cursive;font-size:1.6rem;"
-            f"letter-spacing:2px;color:rgba(255,255,255,0.5);margin-top:8px;'>"
-            f"P(Blockbuster) = {prob:.1%}</div>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
-
-    with v2:
-        pct = int(prob * 100)
-        threshold_note = (
-            "≥ 50% → Blockbuster" if is_bb
-            else f"Needs {50 - pct}pp more to flip"
-        )
-        st.markdown(
-            f"<div style='padding:16px 0;'>"
-            f"<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
-            f"color:#444;margin-bottom:4px;'>Chance of being a blockbuster</div>"
-            f"<div style='font-size:11px;color:#333;margin-bottom:10px;'>"
-            f"(verdict flips at 50%)</div>"
-            f"<div style='font-family:\"Bebas Neue\",cursive;font-size:5rem;"
-            f"color:{color};line-height:1;'>{pct}%</div>"
-            f"<div style='background:#1a1a1a;border-radius:6px;height:14px;"
-            f"margin-top:14px;overflow:hidden;position:relative;'>"
-            f"<div style='width:{pct}%;height:100%;"
-            f"background:linear-gradient(90deg,{color}88,{color});"
-            f"border-radius:6px;'></div>"
-            f"<div style='position:absolute;top:0;left:50%;width:2px;height:100%;"
-            f"background:#f5c518;opacity:0.6;'></div>"
-            f"</div>"
-            f"<div style='display:flex;justify-content:space-between;"
-            f"font-size:10px;color:#333;margin-top:4px;'>"
-            f"<span>0%</span>"
-            f"<span style='color:#f5c518;'>50% threshold</span>"
-            f"<span>100%</span></div>"
-            f"<div style='margin-top:10px;font-size:11.5px;color:{color};"
-            f"font-weight:600;'>{threshold_note}</div>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
-
-    with v3:
-        tier_map = gb_meta.get("tier_budget_adj", {})
-        budget_adj = tier_map.get(budget_tier, 75_000_000)
-        st.markdown(
-            f"<div style='background:#111;border:1px solid #222;border-radius:12px;"
-            f"padding:16px;font-size:12.5px;color:#666;line-height:1.8;'>"
-            f"<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
-            f"color:#333;margin-bottom:10px;'>What the model used</div>"
-            f"<strong style='color:#888;'>Genre</strong> {GENRE_ICONS[genre]} {genre}<br>"
-            f"<strong style='color:#888;'>Prestige</strong> {prestige}<br>"
-            f"<strong style='color:#888;'>Budget (adj.)</strong> ${budget_adj/1e6:.0f}M<br>"
-            f"<strong style='color:#888;'>Release</strong> {WINDOW_ICONS[release]} {release}<br>"
-            f"<strong style='color:#888;'>Runtime</strong> {gb_meta['runtime']:.0f} min "
-            f"<span style='color:#333;'>(median)</span><br>"
-            f"<strong style='color:#888;'>Popularity</strong> {gb_meta['popularity']:.1f} "
-            f"<span style='color:#333;'>(median)</span><br>"
-            f"<strong style='color:#888;'>Vote avg</strong> {gb_meta['vote_average']:.1f} "
-            f"<span style='color:#333;'>(median)</span><br>"
-            f"<div style='margin-top:10px;font-size:11px;color:#2a2a2a;'>"
-            f"Post-release signals use training medians — not available pre-production."
-            f"</div></div>",
-            unsafe_allow_html=True,
+            f"**Genre** {GENRE_ICONS[genre]} {genre} &nbsp;·&nbsp; "
+            f"**Prestige** {prestige} &nbsp;·&nbsp; "
+            f"**Budget** ${budget_adj/1e6:.0f}M &nbsp;·&nbsp; "
+            f"**Release** {WINDOW_ICONS[release]} {release}  \n"
+            f"**Runtime** {gb_meta['runtime']:.0f} min (median) &nbsp;·&nbsp; "
+            f"**Popularity** {gb_meta['popularity']:.1f} (median) &nbsp;·&nbsp; "
+            f"**Vote avg** {gb_meta['vote_average']:.1f} (median)  \n"
+            f"*Engagement signals are training-set medians — not available pre-production.*"
         )
 
     st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
