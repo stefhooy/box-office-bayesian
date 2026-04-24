@@ -1,0 +1,14 @@
+{
+  "runtime": 106.0,
+  "popularity": 3.91475,
+  "vote_average": 6.5305,
+  "vote_count": 2108.5,
+  "release_year": 2025,
+  "tier_budget_adj": {
+    "Micro": 4924458.0,
+    "Low": 23552055.5,
+    "Mid": 60385522.0,
+    "High": 133317522.0,
+    "Mega": 237801247.0
+  }
+}
