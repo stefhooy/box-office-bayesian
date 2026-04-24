@@ -141,18 +141,32 @@ def load_gb():
     ])
     pipe.fit(X, y)
 
-    meta = {
-        "runtime":      float(X["runtime"].median()),
+    # Budget-tier-conditional medians for engagement signals.
+    # A Mega-budget film has popularity ~9.3 and vote_count ~8,478 —
+    # using the all-film median (4.0 / 2,153) makes it look like a
+    # Mid-budget film to the model and systematically kills the probability.
+    tier_engagement = (
+        df_model.groupby("budget_tier")[["popularity", "vote_count", "vote_average", "runtime"]]
+        .median()
+        .to_dict(orient="index")
+    )
+    all_median = {
         "popularity":   float(X["popularity"].median()),
-        "vote_average": float(X["vote_average"].median()),
         "vote_count":   float(X["vote_count"].median()),
-        "release_year": 2025,
+        "vote_average": float(X["vote_average"].median()),
+        "runtime":      float(X["runtime"].median()),
+    }
+
+    meta = {
+        "release_year":    2025,
         "tier_budget_adj": (
             df_model.groupby("budget_tier")["budget_adj"]
             .median()
             .fillna(df_model["budget_adj"].median())
             .to_dict()
         ),
+        "tier_engagement": tier_engagement,
+        "all_median":      all_median,
     }
     return pipe, meta
 
@@ -172,16 +186,20 @@ def query_bn(infer, evidence):
 
 def predict_gb(pipe, meta, prestige, genre, budget_tier, release_window):
     tier_map = meta.get("tier_budget_adj", {})
+    # Use budget-tier-conditional medians for engagement signals so that
+    # e.g. a Mega-budget film gets Mega-typical popularity/vote_count,
+    # not the all-film median which makes every film look mid-budget.
+    eng = meta.get("tier_engagement", {}).get(budget_tier, meta.get("all_median", {}))
     row = pd.DataFrame([{
         "genres":         GENRE_GB_MAP.get(genre, genre),
         "prestige_tier":  prestige,
         "release_window": release_window,
         "budget_adj":     tier_map.get(budget_tier, 75_000_000),
         "release_year":   meta["release_year"],
-        "runtime":        meta["runtime"],
-        "popularity":     meta["popularity"],
-        "vote_average":   meta["vote_average"],
-        "vote_count":     meta["vote_count"],
+        "runtime":        eng.get("runtime", 105),
+        "popularity":     eng.get("popularity", 4.0),
+        "vote_average":   eng.get("vote_average", 6.5),
+        "vote_count":     eng.get("vote_count", 2153),
     }])[PRED_FEATURES]
     return float(pipe.predict_proba(row)[0, 1])
 
@@ -715,7 +733,8 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
         f"<div style='font-size:14px;color:#999;margin-top:14px;'>"
         f"The model estimates a <strong style='color:#fff;'>{pct}% probability</strong>"
         f" that this film will gross <strong style='color:#fff;'>≥ $400M</strong>"
-        f" worldwide (the blockbuster threshold).</div>"
+        f" worldwide gross (2024-adjusted). That is how 'Blockbuster' was defined"
+        f" in the training data.</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
@@ -732,12 +751,12 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
             f"<div style='flex:1;background:#e74c3c22;border:1px solid #e74c3c44;"
             f"display:flex;align-items:center;justify-content:center;"
             f"font-size:11px;color:#e74c3c;font-weight:700;letter-spacing:1px;'>"
-            f"< $400M</div>"
+            f"Below $400M gross</div>"
             f"<div style='width:2px;background:#f5c518;flex-shrink:0;'></div>"
             f"<div style='flex:1;background:#2980b922;border:1px solid #2980b944;"
             f"display:flex;align-items:center;justify-content:center;"
             f"font-size:11px;color:#2980b9;font-weight:700;letter-spacing:1px;'>"
-            f"≥ $400M 🏆</div>"
+            f"≥ $400M gross 🏆</div>"
             f"</div>"
             f"<div style='position:relative;height:30px;'>"
             f"<div style='position:absolute;left:{pct}%;transform:translateX(-50%);'>"
@@ -748,29 +767,34 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
             f"</div>"
             f"</div>"
             f"<div style='font-size:11px;color:#444;margin-top:4px;'>"
-            f"Gold line = 50% decision boundary. Films to its right are called"
-            f" Blockbuster; to its left, Not a Blockbuster.</div>",
+            f"The gold line is the 50% probability cutoff — the point at which the"
+            f" model flips its verdict from one side to the other.</div>",
             unsafe_allow_html=True,
         )
 
     with ex2:
-        # Revenue context box
+        # Honest methodology note
         st.markdown(
             f"<div style='background:#0a0a0a;border:1px solid #1e1e1e;"
             f"border-radius:10px;padding:16px 18px;font-size:13px;"
             f"color:#777;line-height:1.85;'>"
             f"<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
-            f"color:#444;margin-bottom:10px;'>What this model predicts</div>"
-            f"<div style='margin-bottom:8px;'>"
-            f"<span style='color:#aaa;font-weight:600;'>This is a classifier, "
-            f"not a revenue calculator.</span> It does not output a dollar figure."
-            f" It predicts whether this film will cross the "
-            f"<strong style='color:#f5c518;'>$400M worldwide gross</strong> mark.</div>"
+            f"color:#444;margin-bottom:10px;'>A note on the threshold</div>"
+            f"<div style='margin-bottom:10px;color:#666;'>"
+            f"The $400M gross figure is a <strong style='color:#aaa;'>researcher-defined"
+            f" label</strong>, not an industry standard. A film with a $10M budget"
+            f" grossing $80M may be a bigger commercial success than a $200M film"
+            f" grossing $420M — but the model calls only the latter a Blockbuster.<br><br>"
+            f"<strong style='color:#888;'>Why gross, not ROI?</strong> Reliable"
+            f" all-in cost data (including marketing) is unavailable for most films."
+            f" The threshold is CPI-adjusted to 2024 dollars, which partially"
+            f" corrects for inflation.</div>"
             f"<div style='border-top:1px solid #1a1a1a;padding-top:10px;"
             f"font-size:11.5px;color:#555;'>"
-            f"Want full revenue tier probabilities — Flop, Break-even, Hit, Blockbuster?<br>"
-            f"<strong style='color:#2980b9;'>→ Use Layer 1 (Bayesian Network)</strong>"
-            f" — it gives the complete distribution across all four outcomes.</div>"
+            f"For Flop / Break-even / Hit / Blockbuster probabilities using"
+            f" ratio-based definitions → "
+            f"<strong style='color:#2980b9;'>Layer 1 · Bayesian Network</strong>"
+            f" already uses ROI ratios for Flop and Hit.</div>"
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -778,16 +802,19 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
     # ── Inputs used (collapsed) ───────────────────────────────────────────────
     tier_map = gb_meta.get("tier_budget_adj", {})
     budget_adj = tier_map.get(budget_tier, 75_000_000)
+    eng = gb_meta.get("tier_engagement", {}).get(budget_tier, gb_meta.get("all_median", {}))
     with st.expander("Show inputs used by the model", expanded=False):
         st.markdown(
             f"**Genre** {GENRE_ICONS[genre]} {genre} &nbsp;·&nbsp; "
             f"**Prestige** {prestige} &nbsp;·&nbsp; "
             f"**Budget** ${budget_adj/1e6:.0f}M &nbsp;·&nbsp; "
             f"**Release** {WINDOW_ICONS[release]} {release}  \n"
-            f"**Runtime** {gb_meta['runtime']:.0f} min (median) &nbsp;·&nbsp; "
-            f"**Popularity** {gb_meta['popularity']:.1f} (median) &nbsp;·&nbsp; "
-            f"**Vote avg** {gb_meta['vote_average']:.1f} (median)  \n"
-            f"*Engagement signals are training-set medians — not available pre-production.*"
+            f"**Runtime** {eng.get('runtime', 105):.0f} min &nbsp;·&nbsp; "
+            f"**Popularity** {eng.get('popularity', 4.0):.1f} &nbsp;·&nbsp; "
+            f"**Vote avg** {eng.get('vote_average', 6.5):.1f} &nbsp;·&nbsp; "
+            f"**Vote count** {eng.get('vote_count', 2153):.0f}  \n"
+            f"*Engagement signals are the median for {budget_tier}-budget films — "
+            f"scaled to match what a typical {budget_tier}-budget release actually sees.*"
         )
 
     st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
