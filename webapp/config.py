@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from pgmpy.inference import VariableElimination
+from webapp.transformers import GenreMultiHot  # noqa: F401 — needed for pickle
 
 DATA_DIR = Path("data")
 OUT_DIR = Path("outputs")
@@ -63,9 +64,18 @@ def load_engine():
 
 @st.cache_resource(show_spinner=False)
 def load_gb():
-    with open(DATA_DIR / "gb_model.pkl", "rb") as f:
+    gb_pkl = DATA_DIR / "gb_model.pkl"
+    gb_json = DATA_DIR / "gb_meta.json"
+    if not gb_pkl.exists() or not gb_json.exists():
+        st.error(
+            "⚠️ Gradient Boosting model not found. "
+            "Run the notebook save-model cell (Section 7) and push "
+            "`data/gb_model.pkl` + `data/gb_meta.json` to the repo."
+        )
+        st.stop()
+    with open(gb_pkl, "rb") as f:
         gb_model = pickle.load(f)
-    with open(DATA_DIR / "gb_meta.json") as f:
+    with open(gb_json) as f:
         meta = json.load(f)
     return gb_model, meta
 
