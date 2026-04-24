@@ -715,29 +715,42 @@ def page_gradient(gb_pipe, gb_meta, actor_lookup, actor_names):
             f"margin:6px 0;'>GB Verdict</div>"
             f"<div class='outcome-name' style='color:{color};font-size:2rem;'>"
             f"{label}</div>"
-            f"<div style='font-family:\"Bebas Neue\",cursive;font-size:2rem;"
-            f"letter-spacing:3px;color:rgba(255,255,255,0.7);margin-top:6px;'>"
-            f"P = {prob:.1%}</div>"
+            f"<div style='font-family:\"Bebas Neue\",cursive;font-size:1.6rem;"
+            f"letter-spacing:2px;color:rgba(255,255,255,0.5);margin-top:8px;'>"
+            f"P(Blockbuster) = {prob:.1%}</div>"
             f"</div>",
             unsafe_allow_html=True,
         )
 
     with v2:
         pct = int(prob * 100)
+        threshold_note = (
+            "≥ 50% → Blockbuster" if is_bb
+            else f"Needs {50 - pct}pp more to flip"
+        )
         st.markdown(
             f"<div style='padding:16px 0;'>"
             f"<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
-            f"color:#444;margin-bottom:10px;'>Blockbuster Probability</div>"
+            f"color:#444;margin-bottom:4px;'>Chance of being a blockbuster</div>"
+            f"<div style='font-size:11px;color:#333;margin-bottom:10px;'>"
+            f"(verdict flips at 50%)</div>"
             f"<div style='font-family:\"Bebas Neue\",cursive;font-size:5rem;"
             f"color:{color};line-height:1;'>{pct}%</div>"
             f"<div style='background:#1a1a1a;border-radius:6px;height:14px;"
-            f"margin-top:14px;overflow:hidden;'>"
+            f"margin-top:14px;overflow:hidden;position:relative;'>"
             f"<div style='width:{pct}%;height:100%;"
             f"background:linear-gradient(90deg,{color}88,{color});"
-            f"border-radius:6px;'></div></div>"
+            f"border-radius:6px;'></div>"
+            f"<div style='position:absolute;top:0;left:50%;width:2px;height:100%;"
+            f"background:#f5c518;opacity:0.6;'></div>"
+            f"</div>"
             f"<div style='display:flex;justify-content:space-between;"
             f"font-size:10px;color:#333;margin-top:4px;'>"
-            f"<span>0%</span><span>50%</span><span>100%</span></div>"
+            f"<span>0%</span>"
+            f"<span style='color:#f5c518;'>50% threshold</span>"
+            f"<span>100%</span></div>"
+            f"<div style='margin-top:10px;font-size:11.5px;color:{color};"
+            f"font-weight:600;'>{threshold_note}</div>"
             f"</div>",
             unsafe_allow_html=True,
         )
