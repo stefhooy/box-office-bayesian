@@ -1,6 +1,6 @@
 import streamlit as st
 
-from webapp.config import GENRE_ICONS, BUDGET_RANGES, WINDOW_ICONS
+from webapp.config import GENRE_ICONS, WINDOW_ICONS
 from webapp.helpers import predict_gb, _four_inputs
 
 
@@ -114,27 +114,27 @@ def render(gb_pipe, gb_meta, actor_lookup, actor_names):
 
     with ex2:
         st.markdown(
-            f"<div style='background:#0a0a0a;border:1px solid #1e1e1e;"
-            f"border-radius:10px;padding:16px 18px;font-size:13px;"
-            f"color:#777;line-height:1.85;'>"
-            f"<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
-            f"color:#444;margin-bottom:10px;'>A note on the threshold</div>"
-            f"<div style='margin-bottom:10px;color:#666;'>"
-            f"The $400M gross figure is a <strong style='color:#aaa;'>researcher-defined"
-            f" label</strong>, not an industry standard. A film with a $10M budget"
-            f" grossing $80M may be a bigger commercial success than a $200M film"
-            f" grossing $420M — but the model calls only the latter a Blockbuster.<br><br>"
-            f"<strong style='color:#888;'>Why gross, not ROI?</strong> Reliable"
-            f" all-in cost data (including marketing) is unavailable for most films."
-            f" The threshold is CPI-adjusted to 2024 dollars, which partially"
-            f" corrects for inflation.</div>"
-            f"<div style='border-top:1px solid #1a1a1a;padding-top:10px;"
-            f"font-size:11.5px;color:#555;'>"
-            f"For Flop / Break-even / Hit / Blockbuster probabilities using"
-            f" ratio-based definitions → "
-            f"<strong style='color:#2980b9;'>Layer 1 · Bayesian Network</strong>"
-            f" already uses ROI ratios for Flop and Hit.</div>"
-            f"</div>",
+            "<div style='background:#0a0a0a;border:1px solid #1e1e1e;"
+            "border-radius:10px;padding:16px 18px;font-size:13px;"
+            "color:#777;line-height:1.85;'>"
+            "<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
+            "color:#444;margin-bottom:10px;'>A note on the threshold</div>"
+            "<div style='margin-bottom:10px;color:#666;'>"
+            "The $400M gross figure is a <strong style='color:#aaa;'>researcher-defined"
+            " label</strong>, not an industry standard. A film with a $10M budget"
+            " grossing $80M may be a bigger commercial success than a $200M film"
+            " grossing $420M — but the model calls only the latter a Blockbuster.<br><br>"
+            "<strong style='color:#888;'>Why gross, not ROI?</strong> Reliable"
+            " all-in cost data (including marketing) is unavailable for most films."
+            " The threshold is CPI-adjusted to 2024 dollars, which partially"
+            " corrects for inflation.</div>"
+            "<div style='border-top:1px solid #1a1a1a;padding-top:10px;"
+            "font-size:11.5px;color:#555;'>"
+            "For Flop / Break-even / Hit / Blockbuster probabilities using"
+            " ratio-based definitions → "
+            "<strong style='color:#2980b9;'>Layer 1 · Bayesian Network</strong>"
+            " already uses ROI ratios for Flop and Hit.</div>"
+            "</div>",
             unsafe_allow_html=True,
         )
 
