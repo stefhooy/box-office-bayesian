@@ -1,6 +1,5 @@
 import streamlit as st
 
-from webapp.config import OUTCOME_COLORS
 from webapp.helpers import _chart
 
 
@@ -206,6 +205,208 @@ def render():
                 f"<div class='limit-item'><strong>{t}</strong><br>{b}</div>",
                 unsafe_allow_html=True,
             )
+
+    st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
+
+    # ── Personal reflections ──────────────────────────────────────────────────
+    st.markdown("""
+    <div class='display' style='font-size:2rem;color:#f0f0f0;margin-bottom:8px;'>
+      Personal reflections
+    </div>
+    <p style='font-size:13.5px;color:#555;max-width:680px;line-height:1.8;
+              margin-bottom:24px;'>
+      What building this project taught us — the surprises, the traps,
+      and why box office success is far less predictable than it looks on paper.
+    </p>
+    """, unsafe_allow_html=True)
+
+    st.markdown(
+        "<div style='border-left:3px solid #f5c518;padding:16px 24px;"
+        "background:#0d0a00;border-radius:0 10px 10px 0;max-width:760px;"
+        "margin-bottom:28px;font-size:14px;color:#aaa;line-height:1.9;"
+        "font-style:italic;'>"
+        "\"The most interesting thing we found wasn't a number — it was how "
+        "often the obvious answer was wrong. Budget dominates. Fine. But <em>why</em> "
+        "does budget dominate, and what does that actually mean in a world where "
+        "studios are simultaneously cutting theatrical releases and pouring money "
+        "into streaming? The model answers the historical question. The industry "
+        "is busy changing the question.\""
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    for title, body in [
+        ("🎭  Simple rules, hidden complexity",
+         "The headline finding — budget wins — sounds obvious until you dig into it. "
+         "Budget is not just a financial input; it is a studio confidence signal, a "
+         "marketing multiplier, and a self-fulfilling prophecy all at once. A $200M "
+         "film gets the prime release slot, the saturation ad campaign, the merchandise "
+         "deal, and the press junket. A $20M film gets none of that. The model captures "
+         "the correlation but cannot separate these mechanisms. What looks like 'budget "
+         "causes success' is partly 'studios only bet big on films they already believe "
+         "will succeed.'"),
+        ("👻  The Horror anomaly kept us honest",
+         "At Mega budget, every genre hits 60–81% P(Blockbuster) — except Horror, which "
+         "plateaus at 34%. This is not a model artefact. Horror has a structural audience "
+         "ceiling: its core fans will show up, but the casual moviegoer who drives a "
+         "$500M gross needs to be pulled in. No amount of marketing spend changes that "
+         "genre's relationship with general audiences. It forced us to think carefully "
+         "about what 'budget helps' actually means — it amplifies reach, but reach only "
+         "matters if the audience is receptive. Genre sets the ceiling; budget determines "
+         "how close you get to it."),
+        ("📅  Confounding is everywhere",
+         "Release window looked predictive until we controlled for genre. Then it "
+         "vanished completely — a zero ablation delta. Studios schedule their biggest "
+         "action and Sci-Fi films in summer not because summer causes success, but "
+         "because those genres do well and studios know it. This was a useful reminder "
+         "that correlation in box office data is almost always a symptom of something "
+         "else. Every variable we tried to add turned out to be a proxy for budget "
+         "or genre under the surface."),
+        ("🧪  The calibration trap almost broke the model",
+         "The most technically instructive moment was discovering that substituting "
+         "training-set medians for post-release engagement signals (vote count, "
+         "popularity) didn't just add noise — it systematically destroyed the model's "
+         "ability to distinguish budget tiers. A Mega-budget film and a Mid-budget drama "
+         "were handed identical engagement inputs, so the model treated them almost "
+         "identically. High-budget predictions were off by 27 percentage points. "
+         "The fix was counterintuitive: remove the high-importance features entirely "
+         "and accept a less accurate but honestly calibrated model. Accuracy dropped "
+         "2.3pp; calibration recovered completely. The lesson: feature importance and "
+         "inference utility are not the same thing."),
+        ("🌍  Post-COVID changed the rules mid-game",
+         "The theatrical market from 2000–2019 followed reasonably stable patterns. "
+         "Then COVID hit and the floor dropped out. What we can observe post-2020 "
+         "suggests a structural shift, not a temporary shock: blockbuster rates have "
+         "not fully recovered, flop risk has remained elevated, and the audience that "
+         "used to fill seats for mid-budget films has largely migrated to streaming. "
+         "Our model was trained on 25 years of data where most of that structural shift "
+         "happened in the last five. It sees the change but cannot model what comes next."),
+    ]:
+        st.markdown(
+            f"<div class='finding-card'><h4>{title}</h4><p>{body}</p></div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("<hr style='margin:28px 0;'>", unsafe_allow_html=True)
+
+    # ── Future directions ─────────────────────────────────────────────────────
+    st.markdown("""
+    <div class='display' style='font-size:2rem;color:#f0f0f0;margin-bottom:8px;'>
+      Future directions
+    </div>
+    <p style='font-size:13.5px;color:#555;max-width:680px;line-height:1.8;
+              margin-bottom:24px;'>
+      What this model could become with better data — and the bigger questions
+      the industry still cannot answer.
+    </p>
+    """, unsafe_allow_html=True)
+
+    fd1, fd2 = st.columns(2, gap="large")
+
+    with fd1:
+        st.markdown(
+            "<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
+            "color:#f5c518;margin-bottom:16px;font-weight:700;'>Data we wish we had</div>",
+            unsafe_allow_html=True,
+        )
+        for t, b in [
+            ("Marketing spend (P&A budgets)",
+             "Print-and-advertising budgets are the industry's best-kept secret — "
+             "studios report production costs but almost never marketing spend. For "
+             "major releases, P&A often equals or exceeds production budget. Including "
+             "true all-in cost would transform the ROI signal from noisy to precise."),
+            ("Merchandise &amp; licensing revenue",
+             "For franchise films — Marvel, Star Wars, Disney Animation — merchandise "
+             "can generate more revenue than the theatrical run itself. A film that "
+             "'underperforms' at the box office may still be highly profitable. "
+             "Without licensing data, our outcome labels misclassify these films."),
+            ("Streaming performance data",
+             "Netflix, Prime, and Disney+ do not publish viewing numbers at the "
+             "title level. As studios use theatrical release as a loss-leader for "
+             "streaming acquisition, box office gross becomes an increasingly "
+             "incomplete measure of commercial success."),
+            ("Pre-release social media sentiment",
+             "Trailer view counts, search trends, and sentiment on social platforms "
+             "in the weeks before opening are strong leading indicators — and they "
+             "are genuinely pre-release. A model that could incorporate early buzz "
+             "would dramatically outperform one limited to structural features."),
+            ("International market breakdown",
+             "China, South Korea, and other non-English markets can account for "
+             "40–60% of a blockbuster's worldwide gross. A film's domestic performance "
+             "and its international performance often follow different logics — "
+             "genre preferences, star recognition, and political factors all vary "
+             "by market. Treating 'worldwide gross' as a single number conceals this."),
+        ]:
+            st.markdown(
+                f"<div class='limit-item'><strong>{t}</strong><br>{b}</div>",
+                unsafe_allow_html=True,
+            )
+
+    with fd2:
+        st.markdown(
+            "<div style='font-size:10px;letter-spacing:2px;text-transform:uppercase;"
+            "color:#2980b9;margin-bottom:16px;font-weight:700;'>The bigger questions</div>",
+            unsafe_allow_html=True,
+        )
+        for t, b in [
+            ("Is the blockbuster era structurally over?",
+             "Post-COVID, audiences have become more selective about what earns a "
+             "cinema trip. The casual moviegoer — the person who used to see three "
+             "films a year at the multiplex — has largely moved to streaming. What "
+             "remains is a polarised market: event films that demand the big screen "
+             "experience, and everything else that goes straight to a platform. "
+             "The middle is disappearing, and our model was trained on a world "
+             "where the middle existed."),
+            ("Are audiences more economically rational now?",
+             "With higher ticket prices, shrinking real wages, and a cost-of-living "
+             "squeeze across most major markets, going to the cinema is no longer an "
+             "impulse decision. Audiences are evaluating whether a film is worth "
+             "$20+ per person in a way they weren't in 2015. This changes the "
+             "calculus for mid-budget films most severely — the films that are 'good "
+             "but not unmissable' are the ones losing the argument."),
+            ("Does the streaming release window undermine theatrical?",
+             "When audiences know a film will be on a platform they already subscribe "
+             "to in 45–90 days, the urgency to see it in cinemas diminishes. Studios "
+             "are experimenting with window lengths, but the data on whether shorter "
+             "windows cannibalise theatrical or simply accelerate the revenue curve "
+             "is still inconclusive. Our model cannot capture this dynamic at all."),
+            ("What if franchise fatigue is real and accelerating?",
+             "The late 2010s were the peak of Marvel and franchise dominance. Since "
+             "2022, several high-profile franchise entries have significantly "
+             "underperformed. If audiences are genuinely fatiguing on sequels, "
+             "shared universes, and IP-driven films, the historical signal that "
+             "'franchise + Mega budget = Blockbuster' is weakening. A model trained "
+             "on 2000–2025 will be systematically optimistic about franchise films "
+             "if this trend continues."),
+            ("Can you model cultural moment?",
+             "Barbie and Oppenheimer in the same weekend. Top Gun: Maverick becoming "
+             "a post-pandemic catharsis. These are not predictable from budget, genre, "
+             "or prestige alone. Sometimes a film captures a cultural moment that "
+             "multiplies its commercial performance by 2–3×. That kind of resonance "
+             "is fundamentally difficult to model — and maybe it should be. Not "
+             "everything that matters can be reduced to a feature vector."),
+        ]:
+            st.markdown(
+                f"<div class='limit-item'><strong>{t}</strong><br>{b}</div>",
+                unsafe_allow_html=True,
+            )
+
+    st.markdown(
+        "<div style='margin-top:28px;background:#080d14;border:1px solid #1a3a52;"
+        "border-radius:12px;padding:22px 28px;max-width:760px;font-size:13.5px;"
+        "color:#777;line-height:1.9;'>"
+        "<div style='font-size:10px;letter-spacing:3px;text-transform:uppercase;"
+        "color:#2980b9;font-weight:700;margin-bottom:10px;'>The honest takeaway</div>"
+        "Box office success has never been a formula — it is a probability distribution "
+        "shaped by budget, genre, and timing, with a long tail of cultural and economic "
+        "forces that no model fully captures. What we built is a structured way to "
+        "think about those probabilities before a film goes into production. It is "
+        "not a crystal ball. It is a calibrated starting point — and in an industry "
+        "where decisions are made on gut feel and greenlight meetings, a calibrated "
+        "starting point is more valuable than it sounds."
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
     st.markdown("""
     <br><div class='film-strip'></div>
